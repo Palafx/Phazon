@@ -4,24 +4,25 @@ local s,id=GetID()
 function s.initial_effect(c)
 	Pendulum.AddProcedure(c)
 	--Pendulum effect
-	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(542100002,0))
-	e1:SetType(EFFECT_TYPE_IGNITION)
-	e1:SetRange(LOCATION_PZONE)
-	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e1:SetCountLimit(1)
-	e1:SetTarget(s.adtg1)
-	e1:SetOperation(s.adop1)
-	c:RegisterEffect(e1)
-	--Monster effect
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(542100002,1))
+	--e2:SetDescription(aux.Stringid(542100002,0))
 	e2:SetType(EFFECT_TYPE_IGNITION)
-	e2:SetRange(LOCATION_MZONE)
+	e2:SetRange(LOCATION_PZONE)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetTarget(s.adtg2)
-	e2:SetOperation(s.adop2)
+	e2:SetCountLimit(1)
+	e2:SetTarget(s.adtg1)
+	e2:SetOperation(s.adop1)
 	c:RegisterEffect(e2)
+	--Monster effect
+	local e3=Effect.CreateEffect(c)
+	--e3:SetDescription(aux.Stringid(542100002,1))
+	e3:SetType(EFFECT_TYPE_IGNITION)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
+  e3:SetCountLimit(1)
+	e3:SetTarget(s.adtg2)
+	e3:SetOperation(s.adop2)
+	c:RegisterEffect(e3)
 end
 --pendulum effect
 function s.filter(c)
@@ -56,10 +57,10 @@ function s.adfilter(c)
 	return c:IsFaceup() and c:IsDefensePos()
 end
 function s.adtg2(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and chkc:IsFaceup() and chkc:IsDefensePos() end
-	if chk==0 then return Duel.IsExistingTarget(s.adfilter,tp,0,LOCATION_MZONE,1,nil) end
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and chkc:IsFaceup() and chkc:IsDefensePos() end
+	if chk==0 then return Duel.IsExistingTarget(s.adfilter,tp,LOCATION_MZONE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DEFENSE)
-	local g=Duel.SelectTarget(tp,s.adfilter,tp,0,LOCATION_MZONE,1,1,nil)
+	local g=Duel.SelectTarget(tp,s.adfilter,tp,LOCATION_MZONE,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_POSITION,g,1,0,0)
 end
 function s.adop2(e,tp,eg,ep,ev,re,r,rp)
