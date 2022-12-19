@@ -25,8 +25,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		else return false end
 	end
 	local b1=Duel.CheckEvent(EVENT_ATTACK_ANNOUNCE) and Duel.GetTurnPlayer()~=tp
-		and Duel.GetAttacker():IsLocation(LOCATION_MZONE) and Duel.GetAttacker():IsAttackPos()
-		and Duel.GetAttacker():IsCanChangePosition() and Duel.GetAttacker():IsCanBeEffectTarget(e)
+		and Duel.GetAttacker():IsLocation(LOCATION_MZONE)
 	local b2=e:IsHasType(EFFECT_TYPE_ACTIVATE) and Duel.IsExistingTarget(Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
 	if chk==0 then return b1 or b2 end
 	local opt=0
@@ -38,9 +37,6 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		opt=Duel.SelectOption(tp,aux.Stringid(id,1))+1
 	end
 	e:SetLabel(opt)
-	if opt==0 or opt==2 then
-		Duel.SetTargetCard(Duel.GetAttacker())
-	end
 	if opt==1 or opt==2 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
 		local g=Duel.SelectTarget(tp,Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
@@ -50,15 +46,15 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local opt=e:GetFirst()
+	local opt=e:GetLabel()
 	if opt==0 or opt==2 then
 		local tc=Duel.GetAttacker()
-		if tc:IsRelateToEffect(e) and tc:IsFaceup() and tc:CanAttack() and not tc:IsStatus(STATUS_ATTACK_CANCELED) then
-			Duel.ChangePosition(tc,POS_FACEUP_DEFENSE)
+		if tc:IsRelateToBattle(e) and tc:IsFaceup() and tc:CanAttack() then
+			Duel.NegateAttack()
 		end
 	end
 	if opt==1 or opt==2 then
-		local tc=e:GetFirst()
+		local tc=e:GetLabelObject()
 		if c:IsRelateToEffect(e) and tc:IsRelateToEffect(e) and tc:IsFaceup() then
 			Duel.Equip(tp,c,tc)
 			c:CancelToGrave()
