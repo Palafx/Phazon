@@ -1,4 +1,5 @@
 --Arm Bind (Phazon version)
+local s,id=GetID()
 function s.initial_effect(c)
 	--activate
 	local e1=Effect.CreateEffect(c)
