@@ -14,15 +14,15 @@ function s.initial_effect(c)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
-	--Set 1 Continuous Trap from hand or GY
+	--copy effect
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetType(EFFECT_TYPE_ACTIVATE)
 	e2:SetCode(EVENT_FREE_CHAIN)
-	e2:SetHintTiming(0,TIMING_END_PHASE)
+	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetCountLimit(1,id)
-	e2:SetTarget(s.sttg)
-	e2:SetOperation(s.stop)
+	e2:SetTarget(s.cptg)
+	e2:SetOperation(s.cpop)
 	c:RegisterEffect(e2)
 end
 --special summon
@@ -44,23 +44,33 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 --set spell/trap
-function s.stfilter(c)
-	return c:IsSpellTrap() and c:IsSSetable()
+function s.cpfilter(c)
+	return c:IsSpellTrap() and not c:IsCode(id) and c:CheckActivateEffect(false,true,false)~=nil
 end
-function s.sttg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.stfilter,tp,LOCATION_GRAVE,0,1,nil) end
+function s.cptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.cpfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.cpfilter,tp,LOCATION_GRAVE,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+	local g=Duel.SelectTarget(tp,s.cpfilter,tp,LOCATION_GRAVE,0,1,1,nil)
 end
-function s.stop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-	local tc=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.stfilter),tp,LOCATION_GRAVE,0,1,1,nil):GetFirst()
-	if tc and tc:IsSSetable() and Duel.SSet(tp,tc)>0 then
-		--Can be activated this turn
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetDescription(aux.Stringid(id,2))
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_TRAP_ACT_IN_SET_TURN)
-		e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
-		e1:SetReset(RESET_EVENT|RESETS_STANDARD)
-		tc:RegisterEffect(e1)
+function s.cpop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if not (tc and tc:IsRelateToEffect(e)) then return end
+	local te,ceg,cep,cev,cre,cr,crp=tc:CheckActivateEffect(false,true,true)
+	if not te then return end
+	local tg=te:GetTarget()
+	local op=te:GetOperation()
+	if tg then tg(te,tp,Group.CreateGroup(),PLAYER_NONE,0,e,REASON_EFFECT,PLAYER_NONE,1) end
+	Duel.BreakEffect()
+	tc:CreateEffectRelation(te)
+	Duel.BreakEffect()
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+	for etc in aux.Next(g) do
+		etc:CreateEffectRelation(te)
+	end
+	if op then op(te,tp,Group.CreateGroup(),PLAYER_NONE,0,e,REASON_EFFECT,PLAYER_NONE,1) end
+	tc:ReleaseEffectRelation(te)
+	for etc in aux.Next(g) do
+		etc:ReleaseEffectRelation(te)
 	end
 end
