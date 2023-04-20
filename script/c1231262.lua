@@ -25,7 +25,7 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 		local g2=Duel.GetFieldGroup(tp,0,LOCATION_MZONE)
 		local b1=#g1>0
 		local b2=#g2>0
-		if not ((b1 or b2) and Duel.SelectYesNo(tp,aux.Stringid(id,1))) then return end
+		if not ((b1 or b2)) then return end
 			local op=Duel.SelectEffect(tp,
 			{b1,aux.Stringid(id,2)},
 			{b2,aux.Stringid(id,3)})
@@ -33,6 +33,8 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 				local g=Duel.GetFieldGroup(tp,0,LOCATION_MZONE)
 				Duel.Destroy(g,REASON_EFFECT)
 				Duel.RaiseEvent(e:GetHandler(),EVENT_CUSTOM+id,e,0,0,tp,0)
+				Duel.BreakEffect()
+				Duel.Destroy(e:GetHandler(),REASON_EFFECT)
 			elseif op==2 then
 				local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,0,LOCATION_MZONE,nil)
 				local tc=g:GetFirst()
@@ -43,6 +45,8 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 				e1:SetValue(-1000)
 				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 				tc:RegisterEffect(e1)
+				Duel.BreakEffect()
+				Duel.Destroy(e:GetHandler(),REASON_EFFECT)
 			end
 		end
 	else

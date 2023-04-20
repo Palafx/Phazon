@@ -24,7 +24,19 @@ function s.initial_effect(c)
 	e2:SetOperation(s.atkop)
 	e2:SetHintTiming(0,TIMING_BATTLE_START)
 	c:RegisterEffect(e2)
+	--damage
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e3:SetCode(EVENT_LEAVE_FIELD)
+	e3:SetCategory(CATEGORY_DAMAGE)
+	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_DELAY)
+	e3:SetRange(LOCATION_GRAVE+LOCATION_REMOVED)
+	e3:SetCondition(s.damcon)
+	e3:SetTarget(s.damtg)
+	e3:SetOperation(s.damop)
+	c:RegisterEffect(e3)
 end
+--steal effect
 function s.chk(sg,tp,exg,dg)
 	return dg:IsExists(aux.TRUE,2,sg)
 end
@@ -65,16 +77,18 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		ge1:SetLabelObject(ge0)
 		ge1:SetReset(RESET_PHASE+PHASE_END)
 		Duel.RegisterEffect(ge1,tp)
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_FIELD)
-		e1:SetCode(EFFECT_REFLECT_BATTLE_DAMAGE)
-		e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-		e1:SetTargetRange(1,0)
-		e1:SetValue(1)
-		e1:SetReset(RESET_PHASE+PHASE_END)
-		Duel.RegisterEffect(e1,tp)
+	--reflect battle damage
+		local ge2=Effect.CreateEffect(e:GetHandler())
+		ge2:SetType(EFFECT_TYPE_FIELD)
+		ge2:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
+		ge2:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+		ge2:SetTargetRange(1,0)
+		ge2:SetValue(1)
+		ge2:SetReset(RESET_PHASE+PHASE_END)
+		Duel.RegisterEffect(ge2,tp)
 	end
 end
+--can only be attacked subparts
 function s.con(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(s.effilter,e:GetHandler():GetControler(),LOCATION_MZONE,0,1,tp)
 end
@@ -117,18 +131,19 @@ function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 		tc:RegisterEffect(e1)
 	end
 end
---damage
+--burn
 function s.damcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsReason(REASON_BATTLE)
+	local g=eg:Filter(Card.IsMonster,nil)
+	local tc=g:GetFirst()
+	return #g==1 and tc:IsReason(REASON_DESTROY) and tc:IsPreviousLocation(LOCATION_ONFIELD) and tc:IsPreviousControler(tp)
 end
 function s.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local g=eg:Filter(Card.IsMonster,nil)
+	local tc=g:GetFirst()
 	if chk==0 then return true end
-	local bc=e:GetHandler():GetBattleTarget()
-	local dam=bc:GetAttack()
-	if dam<0 then dam=0 end
 	Duel.SetTargetPlayer(1-tp)
-	Duel.SetTargetParam(dam)
-	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,dam)
+	Duel.SetTargetParam(tc:GetPreviousAttackOnField()/2)
+	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,tc:GetPreviousAttackOnField()/2)
 end
 function s.damop(e,tp,eg,ep,ev,re,r,rp)
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
