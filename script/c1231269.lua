@@ -18,17 +18,8 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_TO_GRAVE)
 	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCondition(s.spcon)
-	e2:SetTarget(s.actg)
 	e2:SetOperation(s.acop)
 	c:RegisterEffect(e2)
-	--disable
-	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_FIELD)
-	e3:SetRange(LOCATION_MZONE)
-	e3:SetTargetRange(LOCATION_FZONE,LOCATION_FZONE)
-	e3:SetTarget(s.disable)
-	e3:SetCode(EFFECT_DISABLE)
-	c:RegisterEffect(e3)
 end
 s.listed_names={16625614}
 function s.spfilter(c)
@@ -59,20 +50,13 @@ end
 --dark Sanctuary
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:IsReason(REASON_DESTROY) and c:IsReason(REASON_BATTLE+REASON_EFFECT)
+	return c:IsReason(REASON_DESTROY) and c:IsReason(REASON_BATTLE+REASON_EFFECT) and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND,0,1,nil,tp)
 end
 function s.filter(c,tp)
-	return c:IsCode(16625614) and c:GetActivateEffect() and c:GetActivateEffect():IsActivatable(tp,true,true)
-end
-function s.actg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_GRAVE,0,1,nil,tp) end
+	return c:IsCode(1231272) and c:GetActivateEffect() and c:GetActivateEffect():IsActivatable(tp,true,true)
 end
 function s.acop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-	local tc=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil,tp):GetFirst()
+	local tc=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND,0,1,1,nil,tp):GetFirst()
 	Duel.ActivateFieldSpell(tc,e,tp,eg,ep,ev,re,r,rp)
-end
---
-function s.disable(e,c)
-	return c:IsCode(1231272)
 end
