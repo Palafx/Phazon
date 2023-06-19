@@ -23,6 +23,7 @@ function s.initial_effect(c)
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,0))
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_O)
+	e3:SetHintTiming(TIMING_DRAW_PHASE,TIMING_DRAW_PHASE)
 	e3:SetRange(LOCATION_SZONE)
 	e3:SetCountLimit(1)
 	e3:SetCode(EVENT_FREE_CHAIN)
@@ -67,11 +68,11 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ShuffleSetCard(setg)
 	end
 end
-function s.cfilter(c,tp)
+function s.cfilter1(c,tp)
 	return c:GetPreviousControler()==tp and c:IsSpellTrap()
 end
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.cfilter,1,nil,tp) and re and re:GetHandler()~=e:GetHandler()
+	return eg:IsExists(s.cfilter1,1,nil,tp) and re and re:GetHandler()~=e:GetHandler()
 end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_ONFIELD,0,nil,TYPE_SPELL+TYPE_TRAP)
@@ -89,8 +90,18 @@ end
 function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():IsRelateToEffect(e) then return end
 	local g=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsTrap),tp,LOCATION_ONFIELD,0,nil)
-	if #g>0 then
-		Duel.ChangePosition(g,POS_FACEDOWN)
+	if #g>0 and Duel.ChangePosition(g,POS_FACEDOWN) then
+		local c=e:GetHandler()
+		for tc in g:Iter() do
+			--Can be activated this turn
+			local e1=Effect.CreateEffect(c)
+			e1:SetDescription(aux.Stringid(id,2))
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
+			e1:SetCode(EFFECT_TRAP_ACT_IN_SET_TURN)
+			e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+			tc:RegisterEffect(e1)
+		end
 	end
 end
 function s.refilter(c)
