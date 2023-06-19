@@ -19,15 +19,13 @@ function s.initial_effect(c)
 	e2:SetTarget(s.retg)
 	e2:SetOperation(s.reop)
 	c:RegisterEffect(e2)
-	--Set 
+	--Shuffle set
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,0))
-	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_O)
-	e3:SetHintTiming(TIMING_DRAW_PHASE,TIMING_DRAW_PHASE)
+	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e3:SetRange(LOCATION_SZONE)
 	e3:SetCountLimit(1)
-	e3:SetCode(EVENT_FREE_CHAIN)
-	e3:SetCondition(s.condition1)
+	e3:SetCode(EVENT_PHASE+PHASE_END)
 	e3:SetOperation(s.setop)
 	c:RegisterEffect(e3)
 	--Destroy
@@ -87,21 +85,15 @@ end
 function s.condition1(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_SZONE,0,1,nil)
 end
+
 function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():IsRelateToEffect(e) then return end
 	local g=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsTrap),tp,LOCATION_ONFIELD,0,nil)
-	if #g>0 and Duel.ChangePosition(g,POS_FACEDOWN) then
-		local c=e:GetHandler()
-		for tc in g:Iter() do
-			--Can be activated this turn
-			local e1=Effect.CreateEffect(c)
-			e1:SetDescription(aux.Stringid(id,2))
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
-			e1:SetCode(EFFECT_TRAP_ACT_IN_SET_TURN)
-			e1:SetReset(RESET_EVENT|RESETS_STANDARD)
-			tc:RegisterEffect(e1)
-		end
+	if #g>0 then
+		Duel.ChangePosition(g,POS_FACEDOWN)
+		Duel.RaiseEvent(g,EVENT_SSET,e,REASON_EFFECT,tp,tp,0)
+		Duel.ShuffleSetCard(Duel.GetFieldGroup(tp,LOCATION_SZONE,0):Filter(function(c)return c:GetSequence()<5 end,nil))
+		g:ForEach(function(c)c:SetStatus(STATUS_SET_TURN,true)end)
 	end
 end
 function s.refilter(c)
