@@ -6,17 +6,17 @@ function s.initial_effect(c)
 	e0:SetType(EFFECT_TYPE_ACTIVATE)
 	e0:SetCode(EVENT_FREE_CHAIN)
 	c:RegisterEffect(e0)
-	--Activate
+	--Search
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetRange(LOCATION_FZONE)
-	e1:SetCountLimit(1)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
-	--"Magical Musket" Spell/Traps can be activated from the hand
+	--Spells can be activated from the hand
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetType(EFFECT_TYPE_FIELD)
@@ -25,6 +25,16 @@ function s.initial_effect(c)
 	e2:SetTargetRange(LOCATION_HAND,0)
 	e2:SetTarget(aux.TargetBoolFunction(Card.IsType,TYPE_SPELL))
 	c:RegisterEffect(e2)
+	--Apply the effects of a spell
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e3:SetType(EFFECT_TYPE_QUICK_O)
+	e3:SetCode(EVENT_FREE_CHAIN)
+	e3:SetRange(LOCATION_FZONE)
+	e3:SetTarget(s.target2)
+	e3:SetOperation(s.operation)
+	c:RegisterEffect(e3)
 	--Quick
 	local e7=Effect.CreateEffect(c)
 	e7:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
@@ -32,7 +42,6 @@ function s.initial_effect(c)
 	e7:SetCode(EFFECT_BECOME_QUICK)
 	e7:SetRange(LOCATION_FZONE)
 	e7:SetTargetRange(LOCATION_HAND,0)
-	--e7:SetCondition(function(e)return Duel.IsBattlePhase() end)
 	c:RegisterEffect(e7)
 end
 function s.filter(c)
@@ -48,5 +57,39 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if #g>0 then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g)
+	end
+end
+function s.copfilter(c)
+	return c:IsAbleToGraveAsCost() and c:GetType()==TYPE_SPELL and c:CheckActivateEffect(true,true,false)~=nil 
+end
+function s.target2(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then
+		local te=e:GetLabelObject()
+		return tg and tg(e,tp,eg,ep,ev,re,r,rp,0,chkc)
+	end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.copfilter,tp,LOCATION_DECK,0,1,nil) end
+	local g=Duel.SelectMatchingCard(tp,s.copfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if not Duel.SendtoGrave(g,REASON_COST) then return end
+	local te=g:GetFirst():CheckActivateEffect(true,true,false)
+	e:SetLabel(te:GetLabel())
+	e:SetLabelObject(te:GetLabelObject())
+	local tg=te:GetTarget()
+	if tg then
+		tg(e,tp,eg,ep,ev,re,r,rp,1)
+	end
+	te:SetLabel(e:GetLabel())
+	te:SetLabelObject(e:GetLabelObject())
+	e:SetLabelObject(te)
+	Duel.ClearOperationInfo(0)
+end
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+	local te=e:GetLabelObject()
+	if te then
+		e:SetLabel(te:GetLabel())
+		e:SetLabelObject(te:GetLabelObject())
+		local op=te:GetOperation()
+		if op then op(e,tp,eg,ep,ev,re,r,rp) end
+		te:SetLabel(e:GetLabel())
+		te:SetLabelObject(e:GetLabelObject())
 	end
 end
