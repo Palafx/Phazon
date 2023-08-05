@@ -35,6 +35,16 @@ function s.initial_effect(c)
 	e3:SetTarget(s.target2)
 	e3:SetOperation(s.operation)
 	c:RegisterEffect(e3)
+	--activate self
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,0))
+	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e4:SetRange(LOCATION_DECK)
+	e4:SetCode(EVENT_STARTUP)
+	e4:SetCountLimit(1,id)
+	e4:SetTarget(s.actg)
+	e4:SetOperation(s.acop)
+	c:RegisterEffect(e4)
 	--Quick
 	local e7=Effect.CreateEffect(c)
 	e7:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
@@ -92,4 +102,16 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 		te:SetLabel(e:GetLabel())
 		te:SetLabelObject(e:GetLabelObject())
 	end
+end
+--
+function s.filter(c,tp)
+	return c:IsCode(1231293) and c:GetActivateEffect() and c:GetActivateEffect():IsActivatable(tp,true,true)
+end
+function s.actg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil,tp) end
+end
+function s.acop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
+	local tc=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil,tp):GetFirst()
+	Duel.ActivateFieldSpell(tc,e,tp,eg,ep,ev,re,r,rp)
 end
