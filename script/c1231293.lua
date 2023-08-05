@@ -104,14 +104,14 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 --
-function s.filter(c,tp)
+function s.filter3(c,tp)
 	return c:IsCode(1231293) and c:GetActivateEffect() and c:GetActivateEffect():IsActivatable(tp,true,true)
 end
 function s.actg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil,tp) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter3,tp,LOCATION_DECK,0,1,nil,tp) end
 end
 function s.acop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-	local tc=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil,tp):GetFirst()
+	local tc=Duel.SelectMatchingCard(tp,s.filter3,tp,LOCATION_DECK,0,1,1,nil,tp):GetFirst()
 	Duel.ActivateFieldSpell(tc,e,tp,eg,ep,ev,re,r,rp)
 end
