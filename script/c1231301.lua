@@ -210,6 +210,6 @@ function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.BreakEffect()
 	Duel.Destroy(dg,REASON_EFFECT)
 end
-function s.imfilter(e,te)
-	return te:IsActiveType(TYPE_SPELL)
+function s.imfilter(e,re)
+	return re:GetHandler():GetCode()==18027138
 end
