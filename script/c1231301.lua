@@ -99,6 +99,12 @@ function s.initial_effect(c)
 	e12:SetRange(LOCATION_MZONE)
 	e12:SetValue(s.imfilter)
 	c:RegisterEffect(e12)
+	--atkup
+	local e13=Effect.CreateEffect(c)
+	e13:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e13:SetCode(EVENT_ATTACK_ANNOUNCE)
+	e13:SetOperation(s.atkop2)
+	c:RegisterEffect(e13)
 end
 function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -212,4 +218,15 @@ function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.imfilter(e,re)
 	return re:GetHandler():GetCode()==18027138
+end
+function s.atkop2(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) and c:IsFaceup() then
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+		e1:SetValue(s.adval)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_DAMAGE)
+		c:RegisterEffect(e1)
+	end
 end
