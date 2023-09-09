@@ -70,20 +70,14 @@ function s.initial_effect(c)
 	local e6=Effect.CreateEffect(c)
 	e6:SetDescription(aux.Stringid(id,0))
 	e6:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DEFCHANGE+CATEGORY_DESTROY)
-	e6:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
-	e6:SetCode(EVENT_SUMMON_SUCCESS)
+	e6:SetType(EFFECT_TYPE_QUICK_O)
+	e6:SetCode(EVENT_FREE_CHAIN)
 	e6:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e6:SetRange(LOCATION_MZONE)
-	e6:SetCondition(s.atkcon)
+	e6:SetCountLimit(1)
 	e6:SetTarget(s.atktg)
 	e6:SetOperation(s.atkop)
 	c:RegisterEffect(e6)
-	local e7=e6:Clone()
-	e7:SetCode(EVENT_FLIP_SUMMON_SUCCESS)
-	c:RegisterEffect(e7)
-	local e8=e6:Clone()
-	e8:SetCode(EVENT_SPSUMMON_SUCCESS)
-	c:RegisterEffect(e8)
 	--multiple attacks
 	local e11=Effect.CreateEffect(c)
 	e11:SetType(EFFECT_TYPE_SINGLE)
@@ -173,20 +167,14 @@ function s.adval(e,c)
 end
 -------------------------------------------------------------------
 function s.atkfilter(c,p,e)
-	return c:IsControler(p) and c:IsFaceup() and c:IsCanBeEffectTarget(e)
-end
-function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return not c:IsHasEffect(EFFECT_CANNOT_ATTACK_ANNOUNCE)
-		and not c:IsHasEffect(EFFECT_FORBIDDEN) and not c:IsHasEffect(EFFECT_CANNOT_ATTACK)
-		and not Duel.IsPlayerAffectedByEffect(tp,EFFECT_CANNOT_ATTACK_ANNOUNCE)
-		and not Duel.IsPlayerAffectedByEffect(tp,EFFECT_CANNOT_ATTACK)
-		or c:IsHasEffect(EFFECT_UNSTOPPABLE_ATTACK)
+	return c:IsFaceup() and (c:GetAttack()>0 or c:GetDefense()>0)
 end
 function s.atktg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return eg:IsContains(chkc) and s.atkfilter(chkc,1-tp,e) end
-	if chk==0 then return eg:IsExists(s.atkfilter,1,nil,1-tp,e) end
-	Duel.SetTargetCard(eg:Filter(s.atkfilter,nil,1-tp,e))
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) end
+	if chk==0 then return Duel.IsExistingTarget(s.atkfilter,tp,0,LOCATION_MZONE,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+	local g=Duel.SelectTarget(tp,s.atkfilter,tp,0,LOCATION_MZONE,1,6,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,#g,0,0)
 end
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetTargetCards(e):Filter(Card.IsFaceup,nil)
@@ -194,7 +182,7 @@ function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local dg=Group.CreateGroup()
 	local c=e:GetHandler()
 	for tc in aux.Next(g) do
-		if tc:IsPosition(POS_FACEUP_ATTACK) then
+		if tc:IsPosition(POS_FACEUP_ATTACK) and tc:GetAttack()>0 then
 			local e1=Effect.CreateEffect(c)
 			e1:SetType(EFFECT_TYPE_SINGLE)
 			e1:SetCode(EFFECT_UPDATE_ATTACK)
@@ -202,7 +190,7 @@ function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetReset(RESET_EVENT|RESETS_STANDARD)
 			tc:RegisterEffect(e1)
 			if tc:GetAttack()==0 then dg:AddCard(tc) end
-		elseif tc:IsPosition(POS_FACEUP_DEFENSE) then
+		elseif tc:IsPosition(POS_FACEUP_DEFENSE) and  tc:GetDefense()>0 then
 			local e1=Effect.CreateEffect(c)
 			e1:SetType(EFFECT_TYPE_SINGLE)
 			e1:SetCode(EFFECT_UPDATE_DEFENSE)
