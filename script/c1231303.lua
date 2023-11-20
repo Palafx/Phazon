@@ -1,6 +1,5 @@
 --Cicada Illusion CSTM
 --scripted by: EP Custom Cards
---fixed by MLD
 local s,id=GetID()
 function s.initial_effect(c)
 	aux.AddPersistentProcedure(c,0,s.filter,nil,nil,nil,TIMINGS_CHECK_MONSTER)
@@ -42,13 +41,6 @@ end
 function s.op(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetHandler():GetFirstCardTarget()
 	if tc and tc:IsLocation(LOCATION_MZONE) then
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_UPDATE_DEFENSE)
-		e1:SetValue(tc:GetDefense())
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-		tc:RegisterEffect(e1)
-		Duel.BreakEffect()
 		local e2=Effect.CreateEffect(e:GetHandler())
 		e2:SetType(EFFECT_TYPE_SINGLE)
 		e2:SetCode(EFFECT_UPDATE_DEFENSE)
