@@ -30,6 +30,7 @@ function s.initial_effect(c)
 	e3:SetCondition(s.con)
 	e3:SetOperation(s.op)
 	c:RegisterEffect(e3)
+	
 end
 function s.filter(c)
 	return c:IsPosition(POS_FACEUP_DEFENSE) and c:IsRace(RACE_INSECT)
@@ -43,10 +44,13 @@ function s.op(e,tp,eg,ep,ev,re,r,rp)
 	if tc and tc:IsLocation(LOCATION_MZONE) then
 		local e2=Effect.CreateEffect(e:GetHandler())
 		e2:SetType(EFFECT_TYPE_SINGLE)
-		e2:SetCode(EFFECT_UPDATE_DEFENSE)
-		e2:SetValue(tc:GetAttack())
+		e2:SetCode(EFFECT_SET_DEFENSE)
+		e2:SetValue(6000)
 		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
 		tc:RegisterEffect(e2)
+		local e3=e2:Clone()
+		e3:SetCode(EFFECT_SET_ATTACK)
+		e3:SetValue(1200)
 	end
 end
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
