@@ -38,7 +38,8 @@ function s.initial_effect(c)
 end
 --special summon
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()==1-tp
+	local ph=Duel.GetCurrentPhase()
+	return Duel.GetTurnPlayer()~=tp and (ph==PHASE_MAIN1 or ph==PHASE_MAIN2)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsPlayerCanSpecialSummonMonster(tp,id,0x10db,0x11,3,0,0,RACE_WARRIOR,ATTRIBUTE_DARK) end
