@@ -2,6 +2,7 @@
 --Scripted by EP Custom Cards
 local s,id=GetID()
 function s.initial_effect(c)
+	aux.AddFieldSkillProcedure(c,2,false)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
@@ -10,7 +11,7 @@ function s.initial_effect(c)
 	--Summon
 	local e2=Effect.CreateEffect(c)
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_ATTACK_ANNOUNCE)
 	e2:SetRange(LOCATION_FZONE)
 	e2:SetCondition(function(_,tp) return Duel.GetAttacker():IsControler(1-tp) end)
