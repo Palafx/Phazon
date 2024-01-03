@@ -24,7 +24,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 		local g=Duel.GetOperatedGroup()
 		for tc in aux.Next(g) do
 			if Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0 and tc:IsLevelBelow(4) and tc:IsCanBeSpecialSummoned(e,0,1-tp,false,false) then
-				Duel.SpecialSummon(tc,0,1-tp,1-tp,false,false,POS_FACEUP_DEFENSE|POS_FACEDOWN_DEFENSE)
+				Duel.SpecialSummon(tc,0,1-tp,1-tp,false,false,POS_FACEUP_DEFENSE|POS_FACEDOWN_DEFENSE|POS_FACEUP_ATTACK)
 			end
 		end
 	end
@@ -33,7 +33,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 		local g=Duel.GetOperatedGroup()
 		for tc in aux.Next(g) do
 			if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and tc:IsLevelBelow(4) and tc:IsCanBeSpecialSummoned(e,0,tp,false,false) then
-				Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP_DEFENSE|POS_FACEDOWN_DEFENSE)
+				Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP_DEFENSE|POS_FACEDOWN_DEFENSE|POS_FACEUP_ATTACK)
 			end
 		end
 	end

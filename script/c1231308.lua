@@ -34,6 +34,14 @@ function s.initial_effect(c)
 	e4:SetCost(s.cost)
 	e4:SetOperation(s.operation)
 	c:RegisterEffect(e4,false,REGISTER_FLAG_DETACH_XMAT)
+	--immune
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_SINGLE)
+	e5:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e5:SetRange(LOCATION_MZONE+LOCATION_FZONE)
+	e5:SetCode(EFFECT_IMMUNE_EFFECT)
+	e5:SetValue(s.efilter)
+	c:RegisterEffect(e5)
 end
 s.listed_series={SET_NUMBER}
 s.xyz_number=39
@@ -73,4 +81,8 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.xyzlv(e,c,rc)
 	return c:GetLevel()
+end
+--immune
+function s.efilter(e,te)
+	return te:IsActiveType(TYPE_TRAP)
 end

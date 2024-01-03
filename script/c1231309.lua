@@ -28,6 +28,14 @@ function s.initial_effect(c)
 	e3:SetTargetRange(0,LOCATION_SZONE)
 	e3:SetTarget(aux.TargetBoolFunction(Card.IsTrap))
 	c:RegisterEffect(e3)
+	--immune
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_SINGLE)
+	e4:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e4:SetRange(LOCATION_MZONE+LOCATION_FZONE)
+	e4:SetCode(EFFECT_IMMUNE_EFFECT)
+	e4:SetValue(s.efilter)
+	c:RegisterEffect(e4)
 	--disable trap monster
 	local e5=Effect.CreateEffect(c)
 	e5:SetType(EFFECT_TYPE_FIELD)
@@ -63,4 +71,8 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	if tl==LOCATION_SZONE and re:IsActiveType(TYPE_TRAP) then
 		Duel.NegateEffect(ev)
 	end
+end
+--immune
+function s.efilter(e,te)
+	return te:IsActiveType(TYPE_TRAP)
 end
