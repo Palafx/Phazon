@@ -1,78 +1,28 @@
---Jinzo (Field Spell)
---Scripted by EP Custom Cards
+--おろかな埋葬
+--Foolish Burial
 local s,id=GetID()
 function s.initial_effect(c)
-	aux.AddFieldSkillProcedure(c,2,false) 
-	--Activate
+	--Send 1 monster to the GY
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_TOGRAVE)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetTarget(s.target)
+	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
-	--Summon
-	local e2=Effect.CreateEffect(c)
-	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e2:SetType(EFFECT_TYPE_QUICK_O)
-	e2:SetCode(EVENT_FREE_CHAIN)
-	e2:SetRange(LOCATION_FZONE)
-	e2:SetHintTiming(0,TIMING_MAIN_END)
-	e2:SetCountLimit(1)
-	e2:SetCondition(s.condition)
-	e2:SetTarget(s.target)
-	e2:SetOperation(s.activate)
-	c:RegisterEffect(e2)
-	--disable
-	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_FIELD)
-	e3:SetCode(EFFECT_DISABLE)
-	e3:SetRange(LOCATION_MZONE+LOCATION_FZONE)
-	e3:SetTargetRange(0,LOCATION_SZONE)
-	e3:SetTarget(aux.TargetBoolFunction(Card.IsTrap))
-	c:RegisterEffect(e3)
-	--immune
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_SINGLE)
-	e4:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e4:SetRange(LOCATION_MZONE+LOCATION_FZONE)
-	e4:SetCode(EFFECT_IMMUNE_EFFECT)
-	e4:SetValue(s.efilter)
-	c:RegisterEffect(e4)
-	--disable trap monster
-	local e5=Effect.CreateEffect(c)
-	e5:SetType(EFFECT_TYPE_FIELD)
-	e5:SetCode(EFFECT_DISABLE_TRAPMONSTER)
-	e5:SetRange(LOCATION_MZONE+LOCATION_FZONE)
-	e5:SetTargetRange(0,LOCATION_MZONE)
-	e5:SetTarget(aux.TargetBoolFunction(Card.IsTrap))
-	c:RegisterEffect(e5)
-	aux.DoubleSnareValidity(c,LOCATION_MZONE)
 end
---special summon
-function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	local ph=Duel.GetCurrentPhase()
-	return Duel.GetTurnPlayer()~=tp and (ph==PHASE_MAIN1 or ph==PHASE_MAIN2)
+function s.tgfilter(c)
+	return c:IsMonster() and c:IsAbleToGrave()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsPlayerCanSpecialSummonMonster(tp,id,0x10db,0x11,3,0,0,RACE_WARRIOR,ATTRIBUTE_DARK) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,0,LOCATION_DECK,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and Duel.IsPlayerCanSpecialSummonMonster(tp,id,bc,0x11,6,2400,1500,RACE_MACHINE,ATTRIBUTE_DARK) then
-		c:AddMonsterAttribute(TYPE_EFFECT)
-		Duel.SpecialSummonStep(c,0,tp,tp,true,false,POS_FACEUP)
-		c:AddMonsterAttributeComplete()
-		Duel.SpecialSummonComplete()
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,0,LOCATION_DECK,1,99,nil)
+	if #g>0 then
+		Duel.SendtoGrave(g,REASON_EFFECT)
 	end
-end
---neg
-function s.disop(e,tp,eg,ep,ev,re,r,rp)
-	local tl=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_LOCATION)
-	if tl==LOCATION_SZONE and re:IsActiveType(TYPE_TRAP) then
-		Duel.NegateEffect(ev)
-	end
-end
---immune
-function s.efilter(e,te)
-	return te:IsActiveType(TYPE_TRAP)
 end
