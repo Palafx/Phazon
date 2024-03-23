@@ -25,6 +25,17 @@ function s.initial_effect(c)
 	e3:SetCode(EFFECT_EXTRA_ATTACK)
 	e3:SetValue(1)
 	c:RegisterEffect(e3)
+	--useless Effect
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,5))
+	e4:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e4:SetType(EFFECT_TYPE_QUICK_O)
+	e4:SetCode(EVENT_FREE_CHAIN)
+	e4:SetRange(LOCATION_MZONE)
+	e4:SetCountLimit(1)
+	e4:SetTarget(s.us)
+	e4:SetOperation(s.use)
+	c:RegisterEffect(e4)
 	--atk/def
 	local e6=Effect.CreateEffect(c)
 	e6:SetType(EFFECT_TYPE_SINGLE)
@@ -80,4 +91,11 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	else
 		Duel.Destroy(tc,REASON_EFFECT)
 	end
+end
+--useless
+function s.us(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
+end
+function s.use(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Recover(tp,0,REASON_EFFECT)
 end
