@@ -1,6 +1,7 @@
 --jAM
-local s,id=GetID()
+local s,id,alias=GetID()
 function s.initial_effect(c)
+	alias=c:GetOriginalCodeRule()
 	--spsummon
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
