@@ -8,8 +8,8 @@ function s.initial_effect(c)
 	--on summon
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_DESTROY)
-	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e1:SetCategory(CATEGORY_DESTROY)
+	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e1:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
 	e1:SetCode(EVENT_SUMMON_SUCCESS)
 	e1:SetRange(LOCATION_MZONE)
@@ -21,9 +21,12 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 	--2 attacks
 	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(3201)
 	e3:SetType(EFFECT_TYPE_SINGLE)
+	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_CLIENT_HINT)
 	e3:SetCode(EFFECT_EXTRA_ATTACK)
 	e3:SetValue(1)
+	e3:SetReset(RESET_EVENT|RESETS_STANDARD)
 	c:RegisterEffect(e3)
 	--useless Effect
 	local e4=Effect.CreateEffect(c)
@@ -42,15 +45,13 @@ function s.initial_effect(c)
 	e6:SetCode(EFFECT_UPDATE_ATTACK)
 	e6:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e6:SetRange(LOCATION_MZONE)
-	e6:SetValue(s.adval)
+	e6:SetValue(function (e,c) return Duel.GetFieldGroupCount(c:GetControler(),LOCATION_HAND,0)*1000 end)
 	c:RegisterEffect(e6)
 	local e7=e6:Clone()
 	e7:SetCode(EFFECT_UPDATE_DEFENSE)
 	c:RegisterEffect(e7)
 end
-function s.adval(e,c)
-	return Duel.GetFieldGroupCount(c:GetControler(),LOCATION_HAND,0)*1000
-end
+
 --on summon
 function s.desfilter(c,tp,g)
 	return c:IsSummonPlayer(1-tp) and g:IsContains(c)
@@ -65,7 +66,7 @@ end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EFFECT)
-	local op=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))
+	local op=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2),aux.Stringid(id,5))
 	e:SetLabel(op)
 	if op==0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EFFECT)
@@ -88,8 +89,10 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 			tc:RegisterEffect(e1)
 		end
-	else
+	elseif op==1 then
 		Duel.Destroy(tc,REASON_EFFECT)
+	else
+		Duel.Recover(tp,0,REASON_EFFECT)
 	end
 end
 --useless
