@@ -1,4 +1,5 @@
 --Power Balance
+--Scripted by EP Custom Cards
 local s,id=GetID()
 function s.initial_effect(c)
 	--Activate
@@ -13,9 +14,9 @@ function s.initial_effect(c)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local ct=Duel.GetFieldGroupCount(tp,0,LOCATION_HAND)
-	if chk==0 then return ct>0  and Duel.IsPlayerCanDraw(tp,ct) end
-	Duel.SetOperationInfo(0,CATEGORY_HANDES,nil,0,1-tp,ct)
-	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,tp,0,ct)
+	if chk==0 then return ct>0  and Duel.IsPlayerCanDraw(tp,1) end
+	Duel.SetOperationInfo(0,CATEGORY_HANDES,nil,0,1-tp,1)
+	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,tp,0,1)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local act=Duel.GetFieldGroupCount(tp,0,LOCATION_HAND)
