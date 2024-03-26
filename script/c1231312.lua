@@ -30,6 +30,9 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 --act from hand
+function s.filter(c)
+	return c:IsFaceup() and c:GetAttackAnnouncedCount()>0 and c:GetFlagEffect(id)==0
+end
 function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDraw(tp,3) end
 	Duel.SetTargetPlayer(tp)
@@ -42,6 +45,13 @@ function s.drop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.BreakEffect()
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
 	Duel.Draw(p,d,REASON_EFFECT)
+	Duel.BreakEffect()
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+	local tc=Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,0,1,1,nil)
+	local tc=Duel.GetFirstTarget()
+	if tc and tc:IsFaceup() and tc:IsRelateToEffect(e) then
+		Duel.ChainAttack()
+	end
 end
 --draw
 function s.gfilter(c,tp)
