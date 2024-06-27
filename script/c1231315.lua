@@ -22,10 +22,7 @@ function s.hdtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_HANDES,0,0,1-tp,1)
 end
 function s.hdop(e,tp,eg,ep,ev,re,r,rp)
-	if e:GetHandler():IsRelateToEffect(e) then
-		local g=Duel.GetFieldGroup(1-tp,LOCATION_HAND,0)
-		if #g==0 then return end
-		local sg=g:RandomSelect(1-tp,1)
-		Duel.SendtoGrave(sg,REASON_DISCARD+REASON_EFFECT)
-	end
+	local g=Duel.GetFieldGroup(1-tp,LOCATION_HAND,0)
+	local sg=g:Select(1-tp,1,1,nil)
+	Duel.SendtoGrave(sg,REASON_DISCARD+REASON_EFFECT)
 end
